@@ -45,9 +45,9 @@ let
     GHC_WITH_PKGS=${build-ghc-with-plutus}
     export PATH=$GHC_WITH_PKGS/bin:$PATH
 
-    export FRONTEND_URL=https://localhost:8009
+    export FRONTEND_URL=http://localhost:8008
     export WEBGHC_URL=http://localhost:8080
-    export GITHUB_CALLBACK_PATH=https://localhost:8009/api/oauth/github/callback
+    export GITHUB_CALLBACK_PATH=http://localhost:8008/api/oauth/github/callback
 
     ${build-playground-exe}/bin/plutus-playground-server webserver "$@"
   '';

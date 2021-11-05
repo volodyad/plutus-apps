@@ -7,6 +7,6 @@ auth:
   jwt-signature: ""
 
   # This should match the client-facing schema/host/port.
-  frontend-url: "https://localhost:8009"
+  frontend-url: "http://localhost:8008"
   # This is the path the API will call once authenticated
   github-cb-path: "/#/gh-oauth-cb"
