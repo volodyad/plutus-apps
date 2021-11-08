@@ -77,7 +77,7 @@ fromSeed bs = MockWallet{mwWalletId, mwKey} where
     mwWalletId = CW.WalletId
         $ fromMaybe (error "Ledger.CardanoWallet.fromSeed: digestFromByteString")
         $ Crypto.digestFromByteString
-        $ Crypto.hashWith Crypto.Blake2b_160
+        $ Crypto.hashWith Crypto.Blake2b_224
         $ getLedgerBytes
         $ getPubKey
         $ Crypto.toPublicKey k

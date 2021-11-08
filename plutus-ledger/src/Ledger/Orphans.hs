@@ -54,6 +54,8 @@ instance OpenApi.ToSchema Crypto.XPrv where
     declareNamedSchema _ = pure $ OpenApi.NamedSchema (Just "PrvKey") mempty
 instance OpenApi.ToSchema (Crypto.Digest Crypto.Blake2b_160) where
     declareNamedSchema _ = pure $ OpenApi.NamedSchema (Just "Hash") mempty
+instance OpenApi.ToSchema (Crypto.Digest Crypto.Blake2b_224) where
+    declareNamedSchema _ = pure $ OpenApi.NamedSchema (Just "Hash") mempty
 deriving instance OpenApi.ToSchema (LogMessage JSON.Value)
 deriving instance OpenApi.ToSchema LogLevel
 instance OpenApi.ToSchema JSON.Value where
