@@ -12,7 +12,8 @@ module Ledger.Constraints.OnChain where
 
 import PlutusTx (ToData (toBuiltinData))
 import PlutusTx.Prelude (AdditiveSemigroup ((+)), Bool (False), Eq ((==)), Functor (fmap), Maybe (Just),
-                         Ord ((<=), (>=)), all, any, elem, isJust, isNothing, maybe, snd, traceIfFalse, ($), (&&), (.))
+                         Ord ((<=), (>=)), all, any, elem, isJust, isNothing, map, maybe, or, snd, traceIfFalse, ($),
+                         (&&), (.))
 
 import Ledger qualified
 import Ledger.Constraints.TxConstraints (InputConstraint (InputConstraint, icTxOutRef),
@@ -107,7 +108,7 @@ checkTxConstraint ctx@ScriptContext{scriptContextTxInfo} = \case
         $ V.findDatum dvh scriptContextTxInfo == Just dv
     MustSatisfyAnyOf xs ->
         traceIfFalse "Ld" -- "MustSatisfyAnyOf"
-        $ any (checkTxConstraint ctx) xs
+        $ or $ map (all (checkTxConstraint ctx)) xs
 
 {-# INLINABLE checkScriptContext #-}
 -- | Does the 'ScriptContext' satisfy the constraints?
