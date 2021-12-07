@@ -63,7 +63,7 @@ coin = Stablecoin
     }
 
 signConversionRate :: POSIXTime -> ConversionRate -> SignedMessage (Observation ConversionRate)
-signConversionRate startTime rate = signObservation startTime rate oraclePrivateKey
+signConversionRate startTime rate = signObservation startTime rate oraclePrivateKey ""
 
 stablecoinAddress :: Address
 stablecoinAddress = validatorAddress $ Stablecoin.typedValidator coin
