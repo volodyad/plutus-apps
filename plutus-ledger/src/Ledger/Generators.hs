@@ -41,6 +41,8 @@ module Ledger.Generators(
     genSizedByteString,
     genSizedByteStringExact,
     genTokenName,
+    genSeed,
+    genPassphrase,
     splitVal,
     validateMockchain,
     signAll
@@ -83,7 +85,7 @@ import PlutusTx qualified
 
 -- | Attach signatures of all known private keys to a transaction.
 signAll :: Tx -> Tx
-signAll tx = foldl' (flip addSignature) tx knownPrivateKeys
+signAll tx = foldl' (\ctx pk -> addSignature' pk ctx) tx knownPrivateKeys
 
 -- | The parameters for the generators in this module.
 data GeneratorModel = GeneratorModel {
@@ -424,6 +426,15 @@ genMintingPolicyContext chain = do
     txInfo <- genTxInfo chain
     purpose <- genScriptPurposeMinting txInfo
     pure $ ScriptContext txInfo purpose
+
+-- | Seed suitable for testing a seed but not for actual wallets as ScrubbedBytes isn't used to ensure
+--  memory isn't inspectable
+genSeed :: MonadGen m => m BS.ByteString
+genSeed =  Gen.bytes $ Range.singleton 32
+
+genPassphrase :: MonadGen m => m Passphrase
+genPassphrase =
+  Passphrase <$> Gen.utf8 (Range.singleton 16) Gen.unicode
 
 knownPrivateKeys :: [PrivateKey]
 knownPrivateKeys = CW.privateKey <$> CW.knownWallets
