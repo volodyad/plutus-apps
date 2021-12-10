@@ -574,7 +574,7 @@ signTxWithPrivateKey pk tx pubK = do
 --   ignoring the list of public keys that the 'SigningProcess' is passed.
 signPrivateKeys :: [PrivateKey] -> SigningProcess
 signPrivateKeys signingKeys = SigningProcess $ \_ tx ->
-    pure (foldr (\pk ctx -> Ledger.addSignature' pk ctx) tx signingKeys)
+    pure (foldr Ledger.addSignature' tx signingKeys)
 
 data SigningProcessControlEffect r where
     SetSigningProcess :: SigningProcess -> SigningProcessControlEffect ()

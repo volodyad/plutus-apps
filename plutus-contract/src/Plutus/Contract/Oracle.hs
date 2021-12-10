@@ -211,8 +211,8 @@ signMessage msg pk pass =
         }
 
 -- | Encode an observation of a value of type @a@ that was made at the given time
-signObservation' :: ToData a => POSIXTime -> a -> PrivateKey -> SignedMessage (Observation a)
-signObservation' time vl = signMessage' Observation{obsValue=vl, obsTime=time}
+signObservation :: ToData a => POSIXTime -> a -> PrivateKey -> Passphrase -> SignedMessage (Observation a)
+signObservation time vl = signMessage Observation{obsValue=vl, obsTime=time}
 
 -- | Encode a message of type @a@ as a @Data@ value and sign the
 --   hash of the datum.
@@ -228,8 +228,8 @@ signMessage' msg pk =
         }
 
 -- | Encode an observation of a value of type @a@ that was made at the given time
-signObservation :: ToData a => POSIXTime -> a -> PrivateKey -> Passphrase -> SignedMessage (Observation a)
-signObservation time vl = signMessage Observation{obsValue=vl, obsTime=time}
+signObservation' :: ToData a => POSIXTime -> a -> PrivateKey -> SignedMessage (Observation a)
+signObservation' time vl = signMessage' Observation{obsValue=vl, obsTime=time}
 
 makeLift ''SignedMessage
 makeIsDataIndexed ''SignedMessage [('SignedMessage,0)]

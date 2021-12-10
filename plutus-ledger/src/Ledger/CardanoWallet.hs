@@ -69,7 +69,7 @@ newtype WalletNumber = WalletNumber { getWallet :: Integer }
     deriving anyclass (FromJSON, ToJSON)
 
 fromWalletNumber :: WalletNumber -> MockWallet
-fromWalletNumber (WalletNumber i) = fromSeed (BSL.toStrict $ serialise i) ""
+fromWalletNumber (WalletNumber i) = fromSeed' (BSL.toStrict $ serialise i)
 
 fromSeed :: BS.ByteString -> Crypto.Passphrase -> MockWallet
 fromSeed bs passPhrase = MockWallet{mwWalletId, mwKey} where
