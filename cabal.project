@@ -144,7 +144,7 @@ source-repository-package
 source-repository-package
   type: git
   location: https://github.com/input-output-hk/ouroboros-network
-  tag: 1f4973f36f689d6da75b5d351fb124d66ef1057d
+  tag: d613de3d872ec8b4a5da0c98afb443f322dc4dab
   subdir:
     monoidal-synchronisation
     typed-protocols
@@ -216,12 +216,18 @@ source-repository-package
 source-repository-package
   type: git
   location: https://github.com/input-output-hk/cardano-node.git
-  tag: b6ca519f97a0e795611a63174687e6bb70c9f752
+  tag: 04f50a1b015157a7367f5319db04553f10e96f87
+  -- tag: b6ca519f97a0e795611a63174687e6bb70c9f752
   subdir:
     cardano-api
     cardano-node
     cardano-cli
-    cardano-config
+    -- cardano-config
+
+source-repository-package
+  type: git
+  location: https://github.com/input-output-hk/cardano-config
+  tag: e9de7a2cf70796f6ff26eac9f9540184ded0e4e6
 
 source-repository-package
   type: git
