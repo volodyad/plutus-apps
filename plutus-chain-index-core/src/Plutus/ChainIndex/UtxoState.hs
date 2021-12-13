@@ -7,7 +7,6 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE NamedFieldPuns        #-}
 {-# LANGUAGE OverloadedStrings     #-}
-{-# LANGUAGE Strict                #-}
 {-# LANGUAGE TemplateHaskell       #-}
 {-# LANGUAGE ViewPatterns          #-}
 {-| The UTXO state, kept in memory by the chain index.
@@ -47,7 +46,7 @@ import Data.Semigroup.Generic (GenericSemigroupMonoid (..))
 import GHC.Generics (Generic)
 import Plutus.ChainIndex.ChainIndexError (InsertUtxoFailed (..), RollbackFailed (..))
 import Plutus.ChainIndex.ChainIndexLog (InsertUtxoPosition (..))
-import Plutus.ChainIndex.Types (Depth (..), Point (..), Tip (..), blockNumber, pointsToTip)
+import Plutus.ChainIndex.Types (Depth (..), Point (..), Tip (..), pointsToTip)
 import Prettyprinter (Pretty (..))
 
 -- | UTXO / ledger state, kept in memory. We are only interested in the UTXO set, everything else is stored
@@ -58,15 +57,10 @@ data UtxoState a =
         , _usTip        :: Tip -- ^ Tip of our chain sync client
         }
         deriving stock (Eq, Show, Generic)
+        deriving (Semigroup, Monoid) via (GenericSemigroupMonoid (UtxoState a))
         deriving anyclass (FromJSON, ToJSON)
 
 makeLenses ''UtxoState
-
-deriving via (GenericSemigroupMonoid (UtxoState a)) instance Monoid a => Monoid (UtxoState a)
-
-instance Semigroup a => Semigroup (UtxoState a) where
-    (UtxoState ud tp) <> (UtxoState ud' tp') =
-        UtxoState (ud <> ud') (tp <> tp')
 
 newtype BlockCount = BlockCount { getBlockCount :: Int }
   deriving (Semigroup, Monoid) via (Sum Int)
@@ -99,25 +93,6 @@ instance Pretty (InsertUtxoSuccess a) where
   pretty = \case
     InsertUtxoSuccess _ insertPosition -> pretty insertPosition
 
-trimIndex ::
-   ( Monoid a )
-  => Integer
-  -> UtxoIndex a
-  -> UtxoIndex a
-trimIndex kParameter ix =
-    let (lb, rb) = bounds ix
-    in  if (rb - lb) > kParameter * 2
-        then FT.dropUntil (\(_, uxst) -> rb - blockNumber (view usTip uxst) <= kParameter) ix
-        else ix
-    where
-        bounds :: Monoid a => UtxoIndex a -> (Integer, Integer)
-        bounds ix' =
-            case (FT.viewl ix', FT.viewr ix') of
-              (FT.EmptyL, _) -> (0, 0)
-              (_, FT.EmptyR) -> (0, 0)
-              (l FT.:< _ , _ FT.:> r) -> ( blockNumber $ view usTip l
-                                         , blockNumber $ view usTip r )
-
 -- | Insert a 'UtxoState' into the index
 insert ::
        ( Monoid a
@@ -127,10 +102,8 @@ insert ::
        -> UtxoIndex a
        -> Either InsertUtxoFailed (InsertUtxoSuccess a)
 insert   UtxoState{_usTip=TipAtGenesis} _ = Left InsertUtxoNoTip
-insert s@UtxoState{_usTip= thisTip} ix =
-    -- This number will be made into a command line argument in a future PR.
-    let ix'             = trimIndex 500 ix
-        (before, after) = FT.split ((s <=) . snd) ix'
+insert s@UtxoState{_usTip=thisTip} ix =
+    let (before, after) = FT.split ((s <=) . snd) ix
     in case tip (utxoState after) of
         TipAtGenesis -> Right $ InsertUtxoSuccess{newIndex = before FT.|> s, insertPosition = InsertAtEnd}
         t | t > thisTip -> Right $ InsertUtxoSuccess{newIndex = (before FT.|> s) <> after, insertPosition = InsertBeforeEnd}
