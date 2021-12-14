@@ -319,6 +319,7 @@ executable plutus-pab-local-cluster
         ContractExample.IntegrationTest
         ContractExample.PayToWallet
         ContractExample.WaitForTx
+        ContractExample.MintTest
     default-language: Haskell2010
     default-extensions: ImportQualifiedPost
     ghc-options:
@@ -338,6 +339,7 @@ executable plutus-pab-local-cluster
         , sqlite-simple
         , freer-extras
         , plutus-pab
+        , plutus-tx
         , beam-migrate
         , plutus-use-cases
         , cardano-wallet

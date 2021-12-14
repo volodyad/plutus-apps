@@ -34,6 +34,7 @@ library
         Plutus.Contracts.ErrorHandling
         Plutus.Contracts.Escrow
         Plutus.Contracts.SimpleEscrow
+        Plutus.Contracts.MintTest
         Plutus.Contracts.Future
         Plutus.Contracts.GameStateMachine
         Plutus.Contracts.Governance
