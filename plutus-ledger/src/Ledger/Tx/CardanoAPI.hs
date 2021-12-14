@@ -556,11 +556,17 @@ fromCardanoPolicyId (C.PolicyId scriptHash) = P.MintingPolicyHash $ PlutusTx.toB
 toCardanoPolicyId :: P.MintingPolicyHash -> Either ToCardanoError C.PolicyId
 toCardanoPolicyId (P.MintingPolicyHash bs) = C.PolicyId <$> tag "toCardanoPolicyId" (tag (show (BS.length (PlutusTx.fromBuiltin bs)) <> " bytes") (deserialiseFromRawBytes C.AsScriptHash (PlutusTx.fromBuiltin bs)))
 
+-- fromCardanoAssetName :: C.AssetName -> Value.TokenName
+-- fromCardanoAssetName (C.AssetName bs) = Value.TokenName . PlutusTx.toBuiltin $ B16.decodeLenient bs
+
+-- toCardanoAssetName :: Value.TokenName -> C.AssetName
+-- toCardanoAssetName (Value.TokenName bs) = C.AssetName . B16.encode $ PlutusTx.fromBuiltin bs
+
 fromCardanoAssetName :: C.AssetName -> Value.TokenName
-fromCardanoAssetName (C.AssetName bs) = Value.TokenName . PlutusTx.toBuiltin $ B16.decodeLenient bs
+fromCardanoAssetName (C.AssetName bs) = Value.TokenName $ PlutusTx.toBuiltin  bs
 
 toCardanoAssetName :: Value.TokenName -> C.AssetName
-toCardanoAssetName (Value.TokenName bs) = C.AssetName . B16.encode $ PlutusTx.fromBuiltin bs
+toCardanoAssetName (Value.TokenName bs) = C.AssetName $ PlutusTx.fromBuiltin bs
 
 fromCardanoFee :: C.TxFee era -> P.Value
 fromCardanoFee (C.TxFeeImplicit _)          = mempty
