@@ -77,7 +77,7 @@ handleSyncAction action = do
                                 -- we start logging from here to avoid spamming the terminal
                                 -- should be removed when we have better logging to report
                                 -- on the PAB sync status
-      if (n `mod` 100_000 == 0 && n > 0) || (s >= recentSlot)
+      if (s `mod` 10_000 == 0 &&  s > 0) || (s >= recentSlot)
         then do
           putStrLn $ "Current block: " <> show n <> ". Current slot: " <> show s
         else pure ()
