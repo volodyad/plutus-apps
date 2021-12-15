@@ -75,7 +75,6 @@ import Data.Aeson.Types (Parser, parseFail, prependFailure, typeMismatch)
 import Data.Bifunctor (first)
 import Data.ByteString (ByteString)
 import Data.ByteString qualified as BS
-import Data.ByteString.Base16 qualified as B16
 import Data.ByteString.Lazy qualified as BSL
 import Data.ByteString.Short qualified as SBS
 import Data.Map (Map)
@@ -557,10 +556,10 @@ toCardanoPolicyId :: P.MintingPolicyHash -> Either ToCardanoError C.PolicyId
 toCardanoPolicyId (P.MintingPolicyHash bs) = C.PolicyId <$> tag "toCardanoPolicyId" (tag (show (BS.length (PlutusTx.fromBuiltin bs)) <> " bytes") (deserialiseFromRawBytes C.AsScriptHash (PlutusTx.fromBuiltin bs)))
 
 fromCardanoAssetName :: C.AssetName -> Value.TokenName
-fromCardanoAssetName (C.AssetName bs) = Value.TokenName . PlutusTx.toBuiltin $ B16.decodeLenient bs
+fromCardanoAssetName (C.AssetName bs) = Value.TokenName $ PlutusTx.toBuiltin bs
 
 toCardanoAssetName :: Value.TokenName -> C.AssetName
-toCardanoAssetName (Value.TokenName bs) = C.AssetName . B16.encode $ PlutusTx.fromBuiltin bs
+toCardanoAssetName (Value.TokenName bs) = C.AssetName $ PlutusTx.fromBuiltin bs
 
 fromCardanoFee :: C.TxFee era -> P.Value
 fromCardanoFee (C.TxFeeImplicit _)          = mempty
