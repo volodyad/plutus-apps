@@ -27,6 +27,7 @@ module Plutus.ChainIndex.UtxoState(
     , InsertUtxoSuccess(..)
     , InsertUtxoFailed(..)
     , insert
+    , trimIndex
     -- * Rollbacks
     , RollbackFailed(..)
     , RollbackResult(..)
@@ -104,9 +105,10 @@ trimIndex ::
   => Integer
   -> UtxoIndex a
   -> UtxoIndex a
+trimIndex 0          ix = ix
 trimIndex kParameter ix =
     let (lb, rb) = bounds ix
-    in  if (rb - lb) > kParameter * 2
+    in  if (rb - lb) > kParameter * 10
         then FT.dropUntil (\(_, uxst) -> rb - blockNumber (view usTip uxst) <= kParameter) ix
         else ix
     where
@@ -129,8 +131,7 @@ insert ::
 insert   UtxoState{_usTip=TipAtGenesis} _ = Left InsertUtxoNoTip
 insert s@UtxoState{_usTip= thisTip} ix =
     -- This number will be made into a command line argument in a future PR.
-    let ix'             = trimIndex 500 ix
-        (before, after) = FT.split ((s <=) . snd) ix'
+    let (before, after) = FT.split ((s <=) . snd) ix
     in case tip (utxoState after) of
         TipAtGenesis -> Right $ InsertUtxoSuccess{newIndex = before FT.|> s, insertPosition = InsertAtEnd}
         t | t > thisTip -> Right $ InsertUtxoSuccess{newIndex = (before FT.|> s) <> after, insertPosition = InsertBeforeEnd}
