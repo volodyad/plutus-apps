@@ -253,6 +253,7 @@ executable plutus-pab-examples
         ContractExample.IntegrationTest
         ContractExample.PayToWallet
         ContractExample.WaitForTx
+        ContractExample.AwaitTest
         ContractExample
     default-language: Haskell2010
     default-extensions: ImportQualifiedPost
@@ -318,7 +319,8 @@ executable plutus-pab-local-cluster
         ContractExample.AtomicSwap
         ContractExample.IntegrationTest
         ContractExample.PayToWallet
-        ContractExample.WaitForTx
+        ContractExample.WaitForTx 
+        ContractExample.AwaitTest 
     default-language: Haskell2010
     default-extensions: ImportQualifiedPost
     ghc-options:
@@ -348,7 +350,9 @@ executable plutus-pab-local-cluster
         , iohk-monitoring
         , lobemo-backend-ekg
         , contra-tracer
+        , plutus-tx
         , plutus-chain-index-core
+        , plutus-ledger-api
         , plutus-chain-index
         , cardano-api
         , lens

@@ -22,6 +22,7 @@ import GHC.Generics (Generic)
 import Prettyprinter
 
 import ContractExample.AtomicSwap qualified as Contracts.AtomicSwap
+import ContractExample.AwaitTest qualified as Contracts.AwaitTest
 import ContractExample.IntegrationTest qualified as Contracts.IntegrationTest
 import ContractExample.PayToWallet qualified as Contracts.PayToWallet
 import ContractExample.WaitForTx qualified as Contracts.WaitForTx
@@ -60,6 +61,8 @@ data ExampleContracts = UniswapInit
                       | PingPongAuto -- ^ Variant of 'PingPong' that starts the initialise phase automatically
                       | WaitForTx TxId
                       | IntegrationTest -- ^ Contract that runs a number of transactions (no user input)
+                      | AwaitTestCreateUtxo
+                      | AwaitTestWaitUtxo
     deriving (Eq, Ord, Show, Generic)
     deriving anyclass (FromJSON, ToJSON, OpenApi.ToSchema)
 
@@ -88,43 +91,49 @@ instance HasDefinitions ExampleContracts where
                      , PingPong
                      , PingPongAuto
                      , IntegrationTest
+                     , AwaitTestCreateUtxo
+                     , AwaitTestWaitUtxo
                      ]
     getContract = getExampleContracts
     getSchema = getExampleContractsSchema
 
 getExampleContractsSchema :: ExampleContracts -> [FunctionSchema FormSchema]
 getExampleContractsSchema = \case
-    UniswapInit         -> Builtin.endpointsToSchemas @Empty
-    UniswapUser _       -> Builtin.endpointsToSchemas @Contracts.Uniswap.UniswapUserSchema
-    UniswapOwner        -> Builtin.endpointsToSchemas @Contracts.Uniswap.UniswapOwnerSchema
-    GameStateMachine    -> Builtin.endpointsToSchemas @Contracts.GameStateMachine.GameStateMachineSchema
-    PayToWallet         -> Builtin.endpointsToSchemas @Contracts.PayToWallet.PayToWalletSchema
-    AtomicSwap          -> Builtin.endpointsToSchemas @Contracts.AtomicSwap.AtomicSwapSchema
-    Currency            -> Builtin.endpointsToSchemas @Contracts.Currency.CurrencySchema
-    PrismMirror         -> Builtin.endpointsToSchemas @Contracts.Prism.MirrorSchema
-    PrismUnlockExchange -> Builtin.endpointsToSchemas @Contracts.Prism.UnlockExchangeSchema
-    PrismUnlockSto      -> Builtin.endpointsToSchemas @Contracts.Prism.STOSubscriberSchema
-    PingPong            -> Builtin.endpointsToSchemas @Contracts.PingPong.PingPongSchema
-    PingPongAuto        -> Builtin.endpointsToSchemas @Contracts.PingPong.PingPongSchema
-    WaitForTx{}         -> Builtin.endpointsToSchemas @Empty
-    IntegrationTest{}   -> Builtin.endpointsToSchemas @Empty
+    UniswapInit           -> Builtin.endpointsToSchemas @Empty
+    UniswapUser _         -> Builtin.endpointsToSchemas @Contracts.Uniswap.UniswapUserSchema
+    UniswapOwner          -> Builtin.endpointsToSchemas @Contracts.Uniswap.UniswapOwnerSchema
+    GameStateMachine      -> Builtin.endpointsToSchemas @Contracts.GameStateMachine.GameStateMachineSchema
+    PayToWallet           -> Builtin.endpointsToSchemas @Contracts.PayToWallet.PayToWalletSchema
+    AtomicSwap            -> Builtin.endpointsToSchemas @Contracts.AtomicSwap.AtomicSwapSchema
+    Currency              -> Builtin.endpointsToSchemas @Contracts.Currency.CurrencySchema
+    PrismMirror           -> Builtin.endpointsToSchemas @Contracts.Prism.MirrorSchema
+    PrismUnlockExchange   -> Builtin.endpointsToSchemas @Contracts.Prism.UnlockExchangeSchema
+    PrismUnlockSto        -> Builtin.endpointsToSchemas @Contracts.Prism.STOSubscriberSchema
+    PingPong              -> Builtin.endpointsToSchemas @Contracts.PingPong.PingPongSchema
+    PingPongAuto          -> Builtin.endpointsToSchemas @Contracts.PingPong.PingPongSchema
+    WaitForTx{}           -> Builtin.endpointsToSchemas @Empty
+    IntegrationTest{}     -> Builtin.endpointsToSchemas @Empty
+    AwaitTestCreateUtxo{} -> Builtin.endpointsToSchemas @Empty
+    AwaitTestWaitUtxo{}   -> Builtin.endpointsToSchemas @Empty
 
 getExampleContracts :: ExampleContracts -> SomeBuiltin
 getExampleContracts = \case
-    UniswapInit         -> SomeBuiltin Contracts.Uniswap.setupTokens
-    UniswapUser us      -> SomeBuiltin $ Contracts.Uniswap.userEndpoints us
-    UniswapOwner        -> SomeBuiltin Contracts.Uniswap.ownerEndpoint
-    GameStateMachine    -> SomeBuiltin Contracts.GameStateMachine.contract
-    PayToWallet         -> SomeBuiltin Contracts.PayToWallet.payToWallet
-    AtomicSwap          -> SomeBuiltin Contracts.AtomicSwap.atomicSwap
-    Currency            -> SomeBuiltin Contracts.Currency.mintCurrency
-    PrismMirror         -> SomeBuiltin (Contracts.Prism.mirror @Contracts.Prism.MirrorSchema @())
-    PrismUnlockExchange -> SomeBuiltin (Contracts.Prism.unlockExchange @() @Contracts.Prism.UnlockExchangeSchema)
-    PrismUnlockSto      -> SomeBuiltin (Contracts.Prism.subscribeSTO @() @Contracts.Prism.STOSubscriberSchema)
-    PingPong            -> SomeBuiltin Contracts.PingPong.simplePingPong
-    PingPongAuto        -> SomeBuiltin Contracts.PingPong.simplePingPongAuto
-    WaitForTx txi       -> SomeBuiltin (Contracts.WaitForTx.waitForTx txi)
-    IntegrationTest     -> SomeBuiltin Contracts.IntegrationTest.run
+    UniswapInit           -> SomeBuiltin Contracts.Uniswap.setupTokens
+    UniswapUser us        -> SomeBuiltin $ Contracts.Uniswap.userEndpoints us
+    UniswapOwner          -> SomeBuiltin Contracts.Uniswap.ownerEndpoint
+    GameStateMachine      -> SomeBuiltin Contracts.GameStateMachine.contract
+    PayToWallet           -> SomeBuiltin Contracts.PayToWallet.payToWallet
+    AtomicSwap            -> SomeBuiltin Contracts.AtomicSwap.atomicSwap
+    Currency              -> SomeBuiltin Contracts.Currency.mintCurrency
+    PrismMirror           -> SomeBuiltin (Contracts.Prism.mirror @Contracts.Prism.MirrorSchema @())
+    PrismUnlockExchange   -> SomeBuiltin (Contracts.Prism.unlockExchange @() @Contracts.Prism.UnlockExchangeSchema)
+    PrismUnlockSto        -> SomeBuiltin (Contracts.Prism.subscribeSTO @() @Contracts.Prism.STOSubscriberSchema)
+    PingPong              -> SomeBuiltin Contracts.PingPong.simplePingPong
+    PingPongAuto          -> SomeBuiltin Contracts.PingPong.simplePingPongAuto
+    WaitForTx txi         -> SomeBuiltin (Contracts.WaitForTx.waitForTx txi)
+    IntegrationTest       -> SomeBuiltin Contracts.IntegrationTest.run
+    AwaitTestCreateUtxo{} -> SomeBuiltin Contracts.AwaitTest.runCreateUtxo
+    AwaitTestWaitUtxo{}   -> SomeBuiltin Contracts.AwaitTest.runWaitUtxo
 
 handlers :: SimulatorEffectHandlers (Builtin ExampleContracts)
 handlers =
